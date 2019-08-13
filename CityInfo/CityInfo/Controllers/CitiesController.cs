@@ -1,17 +1,30 @@
 ﻿using CityInfo.Models;
 using Microsoft.AspNetCore.Mvc;
-using System.Collections.Generic;
-
+using System.Linq;
 
 namespace CityInfo.Controllers
 {
+    [Route("api/cities")]
     public class CitiesController : Controller
     {
 
-        [HttpGet("api/cities")]
-        public JsonResult GetCities()
+        [HttpGet()]
+        public IActionResult GetCities()
         {
-            return new JsonResult(CitiesDataStore.Curent.Cities);
+            return Ok(CitiesDataStore.Curent.Cities);
+        }
+
+        [HttpGet("{id}")]
+        public IActionResult GetCities(int id)
+        {
+            var cityToReturn = CitiesDataStore.Curent.Cities.FirstOrDefault(c=> c.Id == id);
+
+            if(cityToReturn == null)
+            {
+                return NotFound();
+            }
+
+            return Ok(cityToReturn);
         }
     }
 }
