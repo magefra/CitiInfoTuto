@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using CityInfo.Models;
+using Microsoft.AspNetCore.Mvc;
 using System.Collections.Generic;
 
 
@@ -10,11 +11,7 @@ namespace CityInfo.Controllers
         [HttpGet("api/cities")]
         public JsonResult GetCities()
         {
-            return new JsonResult(new List<object>
-            {
-                new { Id = 1, Name = ""},
-                new {Id = 2, Name = ""}
-            });
+            return new JsonResult(CitiesDataStore.Curent.Cities);
         }
     }
 }
