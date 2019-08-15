@@ -1,9 +1,6 @@
 ﻿using CityInfo.Models;
 using Microsoft.AspNetCore.Mvc;
-using System;
-using System.Collections.Generic;
 using System.Linq;
-using System.Threading.Tasks;
 
 namespace CityInfo.Controllers
 {
@@ -16,7 +13,7 @@ namespace CityInfo.Controllers
         {
             var city = CitiesDataStore.Curent.Cities.FirstOrDefault(c => c.Id == cityId);
 
-            if(city == null)
+            if (city == null)
             {
                 return NotFound();
             }
@@ -26,7 +23,7 @@ namespace CityInfo.Controllers
         }
 
 
-        [HttpGet("{cityId}/pointofinterest/{id}")]
+        [HttpGet("{cityId}/pointofinterest/{id}", Name = "GetPointOfInterest")]
         public IActionResult GetPointOfInterest(int cityId, int id)
         {
             var city = CitiesDataStore.Curent.Cities.FirstOrDefault(c => c.Id == cityId);
@@ -47,6 +44,43 @@ namespace CityInfo.Controllers
 
             return Ok(pointOfInteres);
 
+        }
+
+        [HttpPost("{cityID}/pointofinterest")]
+        public IActionResult CreatePointInteres(int cityId,
+            [FromBody] PointsOfInterestForCreationDto pointOfInteres)
+        {
+            if (pointOfInteres == null)
+            {
+                return BadRequest();
+            }
+
+            var city = CitiesDataStore.Curent.Cities.FirstOrDefault(c => c.Id == cityId);
+
+            if (city == null)
+            {
+                return NotFound();
+            }
+
+            var maxPointOfInterestId = CitiesDataStore.Curent.Cities.SelectMany(
+                                        c => c.PointOfInterest).Max(p=> p.Id);
+
+
+            var finalPointOfInteres = new PointsOfInterestDto()
+            {
+                Id = ++maxPointOfInterestId,
+                Name = pointOfInteres.Name,
+                Description = pointOfInteres.Description
+           
+            };
+
+            city.PointOfInterest.Add(finalPointOfInteres);
+
+
+            return CreatedAtRoute("GetPointOfInterest", new
+            {
+                cityId = cityId, id = finalPointOfInteres.Id
+            }, finalPointOfInteres);
         }
     }
 }
