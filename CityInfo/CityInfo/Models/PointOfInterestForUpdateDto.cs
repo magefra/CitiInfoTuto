@@ -2,9 +2,9 @@
 
 namespace CityInfo.Models
 {
-    public class PointsOfInterestForCreationDto
+    public class PointOfInterestForUpdateDto
     {
-        [Required(ErrorMessage ="El nombre es requerido")]
+        [Required(ErrorMessage = "El nombre es requerido")]
         [MaxLength(50)]
         public string Name { get; set; }
 
