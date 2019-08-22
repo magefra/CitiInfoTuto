@@ -1,6 +1,8 @@
 ﻿using CityInfo.Models;
+using CityInfo.Services;
 using Microsoft.AspNetCore.JsonPatch;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Logging;
 using System.Linq;
 
 namespace CityInfo.Controllers
@@ -9,18 +11,46 @@ namespace CityInfo.Controllers
     public class PointsOfInterestController : Controller
     {
 
+        /// <summary>
+        /// 
+        /// </summary>
+        private ILogger<PointsOfInterestController> _logger;
+
+        /// <summary>
+        /// 
+        /// </summary>
+        private IMailService _mailService;
+
+
+
+        public PointsOfInterestController(ILogger<PointsOfInterestController> logger,
+                                          IMailService mailService )
+        {
+            _logger = logger;
+            _mailService = mailService;
+
+        }
+
         [HttpGet("{cityId}/pointofinterest")]
         public IActionResult GetPointOfInteres(int cityId)
         {
             var city = CitiesDataStore.Curent.Cities.FirstOrDefault(c => c.Id == cityId);
 
-            if (city == null)
+            try
             {
-                return NotFound();
+                if (city == null)
+                {
+                    _logger.LogInformation($"City with in {cityId} wasn't accesing points of interest.");
+                    return NotFound();
+                }
+
+            }
+            catch (System.Exception ex)
+            {
+                _logger.LogError(ex.Message);
             }
 
             return Ok(city.PointOfInterest);
-
         }
 
 
@@ -133,7 +163,7 @@ namespace CityInfo.Controllers
             var pointsOfInterestFromStore = city.PointOfInterest.FirstOrDefault(p => p.Id == id);
 
 
-            if(pointsOfInterestFromStore == null)
+            if (pointsOfInterestFromStore == null)
             {
                 return NotFound();
             }
@@ -228,6 +258,11 @@ namespace CityInfo.Controllers
 
 
             city.PointOfInterest.Remove(pointsOfInterestFromStore);
+
+
+            _mailService.Send("Point of interest delete.",
+                $"Point of interest {pointsOfInterestFromStore.Name} with id {pointsOfInterestFromStore.Id} was deelted.");
+
 
             return NoContent();
 
